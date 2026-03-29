@@ -1,0 +1,8 @@
+bin/
+*.DAT
+*.RPT
+*.TMP
+*.o
+*.so
+*.dll
+*.exe
