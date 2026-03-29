@@ -71,7 +71,7 @@
       *    pulls in our shared copybook.
 
        FD  ACCOUNT-FILE.
-       COPY ACCTREC REPLACING ==:PREFIX:== BY ====.
+       COPY ACCTREC.
 
        FD  REPORT-FILE.
        01  REPORT-LINE                   PIC X(132).
@@ -94,10 +94,6 @@
            05  WS-RPT-FILE-STATUS        PIC X(2).
            05  WS-INPUT-FILE-STATUS      PIC X(2).
                88  WS-INPUT-EOF          VALUE "10".
-
-      *    ---- Working Copy of Account Record ----
-       01  WS-ACCOUNT-RECORD.
-       COPY ACCTREC REPLACING ==:PREFIX:== BY ====.
 
       *    ---- Error Handling ----
        COPY ERRCODES.

@@ -4,7 +4,7 @@
 # Install: apt install gnucobol | brew install gnucobol | choco install gnucobol
 
 COBC = cobc
-COBFLAGS = -x -free -I copybooks
+COBFLAGS = -x -fixed -I copybooks
 SRCDIR = src
 BINDIR = bin
 DATADIR = data
@@ -45,7 +45,7 @@ $(BINDIR)/BATCHCTL: $(SRCDIR)/BATCHCTL.cbl
 	$(COBC) $(COBFLAGS) -o $@ $<
 
 $(BINDIR)/VALENGN: $(SRCDIR)/VALENGN.cbl copybooks/*.cpy
-	$(COBC) -m -free -I copybooks -o $@ $<
+	$(COBC) -m -fixed -I copybooks -o $@ $<
 
 # Run targets
 run-accounts: $(BINDIR)/ACCTMSTR
