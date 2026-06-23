@@ -26,9 +26,15 @@
 
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+      *    COBOL LESSON: Transaction records carry packed-decimal
+      *    (COMP-3) money fields, so the file holds binary bytes,
+      *    not just text. That means binary SEQUENTIAL organization,
+      *    not LINE SEQUENTIAL (which is for printable text only and
+      *    rejects records with non-display bytes). This mirrors a
+      *    mainframe fixed-block (RECFM=FB) dataset.
            SELECT TRANSACTION-FILE
                ASSIGN TO "TXNINPUT.DAT"
-               ORGANIZATION IS LINE SEQUENTIAL
+               ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-TXN-FILE-STATUS.
 
            SELECT ACCOUNT-FILE
@@ -43,9 +49,11 @@
                ORGANIZATION IS LINE SEQUENTIAL
                FILE STATUS IS WS-AUDIT-FILE-STATUS.
 
+      *    Reject records embed the original (binary) transaction
+      *    record, so this file is binary SEQUENTIAL too.
            SELECT REJECT-FILE
                ASSIGN TO "TXNREJECT.DAT"
-               ORGANIZATION IS LINE SEQUENTIAL
+               ORGANIZATION IS SEQUENTIAL
                FILE STATUS IS WS-REJ-FILE-STATUS.
 
            SELECT SORT-FILE
