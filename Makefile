@@ -10,17 +10,23 @@ BINDIR = bin
 DATADIR = data
 
 # All programs
-PROGRAMS = ACCTMSTR TXNPROC INTCALC RPTGEN AUDITLOG BATCHCTL VALENGN
+PROGRAMS = ACCTMSTR TXNPROC INTCALC RPTGEN AUDITLOG BATCHCTL VALDEMO VALENGN
 
 # Callable subprograms (compiled as modules, not executables)
 MODULES = VALENGN
 
 # Executables
-EXECUTABLES = ACCTMSTR TXNPROC INTCALC RPTGEN AUDITLOG BATCHCTL
+EXECUTABLES = ACCTMSTR TXNPROC INTCALC RPTGEN AUDITLOG BATCHCTL VALDEMO
 
-.PHONY: all clean run-batch run-accounts run-txn run-interest run-reports run-audit help
+.PHONY: all modules clean run-batch run-accounts run-txn run-interest run-reports run-audit run-validate help
 
-all: $(BINDIR) $(addprefix $(BINDIR)/, $(EXECUTABLES))
+all: $(BINDIR) modules $(addprefix $(BINDIR)/, $(EXECUTABLES))
+
+# Compile VALENGN as a standalone callable module. cobc -m emits the
+# platform's shared-object extension (.so on Linux, .dylib on macOS),
+# so this is a phony step rather than a named-file target.
+modules: $(BINDIR)
+	$(COBC) -m -fixed -I copybooks -o $(BINDIR)/VALENGN $(SRCDIR)/VALENGN.cbl
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -44,8 +50,11 @@ $(BINDIR)/AUDITLOG: $(SRCDIR)/AUDITLOG.cbl copybooks/*.cpy
 $(BINDIR)/BATCHCTL: $(SRCDIR)/BATCHCTL.cbl
 	$(COBC) $(COBFLAGS) -o $@ $<
 
-$(BINDIR)/VALENGN: $(SRCDIR)/VALENGN.cbl copybooks/*.cpy
-	$(COBC) -m -fixed -I copybooks -o $@ $<
+# VALDEMO statically links the VALENGN subprogram so the demo runs
+# anywhere with no module-path setup. VALENGN is also built as a
+# standalone module above (the `modules` target) to show both styles.
+$(BINDIR)/VALDEMO: $(SRCDIR)/VALDEMO.cbl $(SRCDIR)/VALENGN.cbl copybooks/*.cpy
+	$(COBC) $(COBFLAGS) -o $@ $(SRCDIR)/VALDEMO.cbl $(SRCDIR)/VALENGN.cbl
 
 # Run targets
 run-accounts: $(BINDIR)/ACCTMSTR
@@ -67,6 +76,10 @@ run-reports: $(BINDIR)/RPTGEN
 run-audit: $(BINDIR)/AUDITLOG
 	@echo "=== Running Audit Logger ==="
 	cd $(BINDIR) && ./AUDITLOG
+
+run-validate: $(BINDIR)/VALDEMO
+	@echo "=== Running Validation Engine Demo ==="
+	cd $(BINDIR) && ./VALDEMO
 
 # Run the full batch cycle in sequence
 run-batch: all
@@ -121,6 +134,7 @@ help:
 	@echo "  make run-interest - Run interest calculator"
 	@echo "  make run-reports  - Run report generator"
 	@echo "  make run-audit    - Run audit logger"
+	@echo "  make run-validate - Run the validation engine demo"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Prerequisites: GnuCOBOL (cobc)"
