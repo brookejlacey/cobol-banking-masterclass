@@ -35,6 +35,10 @@ Prefer Docker? `docker build -t cobol-masterclass . && docker run -it cobol-mast
 
 After `make run-batch`, the generated reports land in `bin/`: `ACCTLIST.RPT`, `INTEREST.RPT`, `FINREPORT.RPT`, and `AUDITRPT.RPT`.
 
+Here is the transaction processor running inside that batch, posting good transactions and rejecting the ones that break the rules:
+
+![make run-batch output: the transaction processor posting and rejecting transactions, then the batch summary](docs/run-batch.png)
+
 ## What's inside
 
 | Program | What it demonstrates | What you see when you run it |
